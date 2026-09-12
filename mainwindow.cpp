@@ -303,10 +303,24 @@ void MainWindow::onPortSearchTimerTimeout()
     if(serial_->isOpen())
         return;
 
-    ui->ComComboBox->clear();
+    QString current = ui->ComComboBox->currentText();
+    QStringList ports;
     for (const auto &info : QSerialPortInfo::availablePorts()) {
-        ui->ComComboBox->addItem(info.portName());
+        ports << info.portName();
     }
+
+    // Only rebuild if the port list actually changed
+    QStringList current_ports;
+    for (int i = 0; i < ui->ComComboBox->count(); ++i)
+        current_ports << ui->ComComboBox->itemText(i);
+    if (ports == current_ports)
+        return;
+
+    ui->ComComboBox->clear();
+    ui->ComComboBox->addItems(ports);
+    int idx = ui->ComComboBox->findText(current);
+    if (idx >= 0)
+        ui->ComComboBox->setCurrentIndex(idx);
 }
 
 void MainWindow::onConnectButtonClicked()
